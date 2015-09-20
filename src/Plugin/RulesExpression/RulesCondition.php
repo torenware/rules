@@ -117,12 +117,13 @@ class RulesCondition extends ExpressionBase implements ConditionExpressionInterf
     $this->processData($condition, $state);
 
     $result = $condition->evaluate();
-
+    
     // Now that the condition has been executed it can provide additional
     // context which we will have to pass back in the evaluation state.
     $this->mapProvidedContext($condition, $state);
 
-    return $result;
+    // Apply negation on return if required
+    return $this->isNegated() ? !$result : $result;
   }
 
   /**
