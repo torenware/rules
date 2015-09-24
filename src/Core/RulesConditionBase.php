@@ -48,4 +48,18 @@ abstract class RulesConditionBase extends ConditionPluginBase implements RulesCo
     return call_user_func_array([$this, 'doEvaluate'], $args);
   }
 
+  /**
+   * {@inheritdoc}
+   *
+   * Override so we get context in cannonical order.
+   */
+  public function getContexts() {
+    // Make sure all context objects are initialized.
+    $ordered_context = [];
+    foreach ($this->getContextDefinitions() as $name => $definition) {
+      $ordered_context[$name] = $this->getContext($name);
+    }
+    return $ordered_context;
+  }
+
 }

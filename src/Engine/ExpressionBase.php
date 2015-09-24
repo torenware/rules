@@ -7,14 +7,14 @@
 
 namespace Drupal\rules\Engine;
 
-use Drupal\Core\Plugin\ContextAwarePluginBase;
 use Drupal\rules\Context\ContextDefinition;
 use Drupal\rules\Context\ContextProviderTrait;
+use Drupal\rules\Core\RulesPluginBase;
 
 /**
  * Base class for rules actions.
  */
-abstract class ExpressionBase extends ContextAwarePluginBase implements ExpressionInterface {
+abstract class ExpressionBase extends RulesPluginBase implements ExpressionInterface {
 
   use ContextProviderTrait;
 

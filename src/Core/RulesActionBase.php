@@ -8,14 +8,13 @@
 namespace Drupal\rules\Core;
 
 use Drupal\Core\Access\AccessResultForbidden;
-use Drupal\Core\Plugin\ContextAwarePluginBase;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\rules\Context\ContextProviderTrait;
 
 /**
  * Base class for rules actions.
  */
-abstract class RulesActionBase extends ContextAwarePluginBase implements RulesActionInterface {
+abstract class RulesActionBase extends RulesPluginBase implements RulesActionInterface {
 
   use ContextProviderTrait;
   use ExecutablePluginTrait;
