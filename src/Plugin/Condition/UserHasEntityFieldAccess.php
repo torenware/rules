@@ -77,17 +77,24 @@ class UserHasEntityFieldAccess extends RulesConditionBase implements ContainerFa
   }
 
   /**
-   * {@inheritdoc}
+   * Evaluate if the user has an access to an entity's field.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   Entity to be tested.
+   * @param string $field
+   *   Name of field to be tested.
+   * @param string $operation
+   *   The operation access should be checked for.
+   *   Usually one of "view" or "edit".
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   User to test access against.
+   * @return bool
    */
-  public function evaluate() {
-    $entity = $this->getContextValue('entity');
-    $field = $this->getContextValue('field');
+  protected function doEvaluate($entity, $field, $operation, $account) {
     if (!$entity->hasField($field)) {
       return FALSE;
     }
 
-    $operation = $this->getContextValue('operation');
-    $account = $this->getContextValue('user');
     $access = $this->entityManager->getAccessControlHandler($entity->getEntityTypeId());
     if (!$access->access($entity, $operation, Language::LANGCODE_DEFAULT, $account)) {
       return FALSE;
