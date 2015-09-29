@@ -31,7 +31,7 @@ trait ContextProviderTrait {
    * @see \Drupal\rules\Context\ContextProviderInterface
    */
   public function setProvidedValue($name, $value) {
-    $this->getProvidedContext($name)->setContextValue($value);
+    $this->providedContext[$name] = new Context($this->getProvidedContextDefinition($name), $value);
     return $this;
   }
 

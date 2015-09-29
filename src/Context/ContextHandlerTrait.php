@@ -9,6 +9,7 @@ namespace Drupal\rules\Context;
 
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Plugin\ContextAwarePluginInterface as CoreContextAwarePluginInterface;
+use Drupal\Core\Plugin\Context\Context;
 use Drupal\rules\Engine\RulesStateInterface;
 use Drupal\rules\Exception\RulesEvaluationException;
 
@@ -28,6 +29,16 @@ trait ContextHandlerTrait {
    * @var \Drupal\rules\Context\DataProcessorManager
    */
   protected $processorManager;
+  
+  /**
+   * Sets or replaces a plugin context with a set value
+   */
+  protected function setPluginContext($plugin, $name, $typed_data) {
+    $context_def = $plugin->getContextDefinition($name);
+    $context = new Context($context_def, $typed_data);
+    $plugin->setContext($name, $context);
+    
+  }
 
   /**
    * Maps variables from rules state into the plugin context.
@@ -54,7 +65,7 @@ trait ContextHandlerTrait {
             '@plugin' => $plugin->getPluginId(),
           ]));
         }
-        $plugin->getContext($name)->setContextData($typed_data);
+        $this->setPluginContext($plugin, $name, $typed_data);
       }
       elseif (isset($this->configuration['context_values'])
         && array_key_exists($name, $this->configuration['context_values'])
@@ -66,8 +77,7 @@ trait ContextHandlerTrait {
             '@plugin' => $plugin->getPluginId(),
           ]));
         }
-
-        $plugin->getContext($name)->setContextValue($this->configuration['context_values'][$name]);
+        $this->setPluginContext($plugin, $name, $this->configuration['context_values'][$name]);
       }
       elseif ($definition->isRequired()) {
         throw new RulesEvaluationException(SafeMarkup::format('Required context @name is missing for plugin @plugin.', [

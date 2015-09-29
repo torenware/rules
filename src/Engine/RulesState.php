@@ -10,6 +10,7 @@ namespace Drupal\rules\Engine;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Plugin\Context\ContextInterface;
+use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\Core\TypedData\ComplexDataInterface;
 use Drupal\Core\TypedData\DataReferenceInterface;
 use Drupal\Core\TypedData\ListInterface;
@@ -95,7 +96,15 @@ class RulesState implements RulesStateInterface {
     $context = $this->getVariable($parts[0]);
     $typed_data = $context->getContextData();
     if (count($parts) == 1) {
-      return $typed_data;
+      if ($typed_data instanceof TypedDataInterface) {
+        return $typed_data;
+      }
+      else {
+        $definition = \Drupal::typedDataManager()->createDataDefinition('any');
+        $wrapped_data = \Drupal::typedDataManager()->create($definition);
+        $wrapped_data->setValue($typed_data);
+        return $wrapped_data;
+      }
     }
     $current_selector = $parts[0];
     foreach (explode(':', $parts[1]) as $name) {
