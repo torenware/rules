@@ -96,7 +96,7 @@ class UserHasEntityFieldAccess extends RulesConditionBase implements ContainerFa
     }
 
     $access = $this->entityManager->getAccessControlHandler($entity->getEntityTypeId());
-    if (!$access->access($entity, $operation, Language::LANGCODE_DEFAULT, $account)) {
+    if (!$access->access($entity, $operation, $account)) {
       return FALSE;
     }
 
