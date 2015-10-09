@@ -10,6 +10,8 @@ namespace Drupal\rules\Plugin\Condition;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\rules\Core\RulesConditionBase;
 use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -87,9 +89,11 @@ class UserHasEntityFieldAccess extends RulesConditionBase implements ContainerFa
    *   Usually one of "view" or "edit".
    * @param \Drupal\Core\Session\AccountInterface $account
    *   User to test access against.
+   *
    * @return bool
+   *   Whether the condition passed.
    */
-  protected function doEvaluate($entity, $field, $operation, $account) {
+  protected function doEvaluate(ContentEntityInterface $entity, $field, $operation, AccountInterface $account) {
     if (!$entity->hasField($field)) {
       return FALSE;
     }
