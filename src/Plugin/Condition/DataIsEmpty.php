@@ -36,17 +36,10 @@ class DataIsEmpty extends RulesConditionBase {
   /**
    * {@inheritdoc}
    */
-  public function evaluate() {
-    $data = $this->getContext('data')->getContextData();
+  protected function doEvaluate($data) {
     if ($data instanceof ComplexDataInterface || $data instanceof ListInterface) {
       return $data->isEmpty();
     }
-    $value = $data->getValue();
-    // For some primitives we can rely on PHP's type casting to boolean.
-    if ($data instanceof StringInterface || $data instanceof IntegerInterface || $data instanceof BooleanInterface) {
-      return !isset($value) || !$value;
-    }
-    return !isset($value);
+    return empty($data);
   }
-
 }
