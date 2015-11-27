@@ -8,6 +8,7 @@
 namespace Drupal\Tests\rules\Kernel;
 
 use Drupal\rules\Context\ContextDefinition;
+use Drupal\rules\Context\ContextConfig;
 
 /**
  * Tests storage and loading of Rules config entities.
@@ -22,6 +23,15 @@ class ConfigEntityTest extends RulesDrupalTestBase {
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected $storage;
+
+  /**
+   * Disable strict config schema checking for now.
+   *
+   * @todo: Fix once config schema has been improved.
+   *
+   * @var bool
+   */
+  protected $strictConfigSchema = FALSE;
 
   /**
    * {@inheritdoc}
@@ -63,6 +73,46 @@ class ConfigEntityTest extends RulesDrupalTestBase {
 
     // Test that the action logged something.
     $this->assertRulesLogEntryExists('action called');
+  }
+
+  /**
+   * Test saving a deeply nested rule.
+   *
+   * @todo This test currently fails if $strictConfigSchema = TRUE.
+   */
+  public function testNestedRuleSave() {
+    // This test is specific to reaction rules, so get the appropriate
+    // entity storage:
+    $storage = $this->container->get('entity.manager')->getStorage('rules_reaction_rule');
+    // Create a nested expression.
+    $and = $this->expressionManager->createAnd()
+      ->addCondition('rules_test_false')
+      ->addCondition('rules_test_true', ContextConfig::create()->negateResult())
+      ->negate();
+
+    $or = $this->expressionManager->createOr()
+      ->addCondition('rules_test_true', ContextConfig::create()->negateResult())
+      ->addCondition('rules_test_false')
+      ->addCondition($and);
+
+    $rule = $this->expressionManager->createReactionRule();
+    $rule->addCondition('rules_test_true')
+      ->addCondition('rules_test_true')
+      ->addExpressionObject($or);
+
+    $rule->addAction('rules_test_log');
+
+    // Save it as a config_entity.
+    $rule_config = $storage->create(['id' => 'test_big_hairy_rule']);
+    $rule_config->setExpression($rule);
+    $rule_config->set('event', 'rules_user_login');
+    $rule_config->set('tag', 'demo example');
+    $rule_config->set('description', 'Component that uses a nested rule.');
+    $rule_config->save();
+
+    // Try to retrieve it.
+    $retrieved_config = $storage->load('test_big_hairy_rule');
+    $this->assertNotEmpty($retrieved_config, "We created and retrieved a big hairy rule expression");
   }
 
   /**

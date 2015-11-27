@@ -92,11 +92,48 @@ abstract class ExpressionBase extends ContextAwarePluginBase implements Expressi
 
   /**
    * {@inheritdoc}
+   *
+   * This removes any embedded expression objects, turning them into arrays.
    */
   public function getConfiguration() {
+    $cleaned = static::cleanConfiguration($this->configuration);
     return [
       'id' => $this->getPluginId(),
-    ] + $this->configuration;
+    ] + $cleaned;
+  }
+
+  /**
+   * Remove object references from configuration arrays.
+   *
+   * This routine assumes that the only problem items that can be embedded
+   * is another expression.  It may make sense to throw an exception if
+   * some other kind of object can appear as well, since debugging this
+   * once it gets into the config entity code is rather hard.
+   *
+   * @param mixed $config
+   *   Item or sub-item from an uncleaned configuration array.
+   *
+   * @return array[]
+   *   A configuration array with expression objects converted to arrays.
+   */
+  static protected function cleanConfiguration($config) {
+    if ($config instanceof ExpressionBase) {
+      $config = $config->getConfiguration();
+    }
+    if (is_array($config)) {
+      $items = [];
+      foreach ($config as $key => $val) {
+        if (!is_scalar($val)) {
+          $val = static::cleanConfiguration($val);
+        }
+        $items[$key] = $val;
+      }
+      return $items;
+    }
+    else {
+      // @todo may want to throw something if $config is not scalar.
+      return $config;
+    }
   }
 
   /**
