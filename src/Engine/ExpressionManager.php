@@ -50,6 +50,9 @@ class ExpressionManager extends DefaultPluginManager implements ExpressionManage
    * {@inheritdoc}
    */
   public function createAction($id) {
+    if (!is_string($id)) {
+      throw new \InvalidArgumentException(t('Rules Action IDs must be strings.'));
+    }
     return $this->createInstance('rules_action', [
       'action_id' => $id,
     ]);
@@ -59,6 +62,9 @@ class ExpressionManager extends DefaultPluginManager implements ExpressionManage
    * {@inheritdoc}
    */
   public function createCondition($id) {
+    if (!is_string($id)) {
+      throw new \InvalidArgumentException(t('Condition IDs must be strings.'));
+    }
     return $this->createInstance('rules_condition', [
       'condition_id' => $id,
     ]);
